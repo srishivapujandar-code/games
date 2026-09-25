@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function admin() { return request.auth != null && request.auth.token.email == 'CHANGE_ME_ADMIN_EMAIL'; }
+    match /students/{id} {
+      allow create: if request.resource.data.rollNumber is string && request.resource.data.name is string;
+      allow read: if true;
+      allow update, delete: if admin();
+    }
+    match /scores/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.score is int && request.resource.data.score >= 0 && request.resource.data.score <= 10;
+      allow update, delete: if admin();
+    }
+    match /games/{id} { allow read: if true; allow write: if admin(); }
+    match /questions/{id} { allow read: if true; allow write: if admin(); }
+    match /eventSettings/{id} { allow read: if true; allow write: if admin(); }
+  }
+}
